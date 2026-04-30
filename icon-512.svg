@@ -1,0 +1,9 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Python Analyst icon">
+  <rect width="512" height="512" rx="96" fill="#12386f"/>
+  <rect x="64" y="64" width="384" height="384" rx="76" fill="#0b2550" stroke="#68c5ff" stroke-width="12"/>
+  <path d="M154 196c0-38 32-70 70-70h64c32 0 60 28 60 60v32h-102c-26 0-48 22-48 48v26h-32c-6 0-12-6-12-12V196z" fill="#ffd166"/>
+  <circle cx="284" cy="164" r="10" fill="#12386f"/>
+  <path d="M358 316c0 38-32 70-70 70h-64c-32 0-60-28-60-60v-32h102c26 0 48-22 48-48v-26h32c6 0 12 6 12 12v84z" fill="#56d6a2"/>
+  <circle cx="228" cy="348" r="10" fill="#12386f"/>
+  <text x="256" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff">PY</text>
+</svg>

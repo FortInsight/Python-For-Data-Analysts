@@ -1,0 +1,24 @@
+﻿{
+  "name": "Python For Data Analysts Learning Hub",
+  "short_name": "Python Analyst",
+  "description": "A start-to-finish Python learning app for data analysts with modules, levels, quizzes, and saved progress.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#d8efff",
+  "theme_color": "#12386f",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

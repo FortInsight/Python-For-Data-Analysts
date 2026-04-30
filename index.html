@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#12386f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Python Analyst" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.svg" />
 </head>
 <body>
   <div class="page-shell">
@@ -105,6 +112,12 @@
           </div>
         </div>
 
+        <div class="summary-panel">
+          <h3>Score History</h3>
+          <div id="score-history-empty" class="history-empty">Complete levels to save score history here.</div>
+          <div id="score-history-list" class="history-list"></div>
+        </div>
+
         <div class="roadmap-card">
           <h3>Roadmap</h3>
           <ol id="roadmap-list" class="roadmap-list"></ol>
@@ -189,5 +202,14 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js");
+      });
+    }
+  </script>
 </body>
 </html>
+
+

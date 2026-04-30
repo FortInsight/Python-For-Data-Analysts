@@ -1,4 +1,4 @@
-const modules = [
+﻿const modules = [
   makeModule(
     "python-mindset",
     1,
@@ -340,6 +340,8 @@ const elements = {
   selectedModuleLabel: document.getElementById("selected-module-label"),
   completedLevelsLabel: document.getElementById("completed-levels-label"),
   completedModulesLabel: document.getElementById("completed-modules-label"),
+  scoreHistoryEmpty: document.getElementById("score-history-empty"),
+  scoreHistoryList: document.getElementById("score-history-list"),
   roadmapList: document.getElementById("roadmap-list"),
   moduleGrid: document.getElementById("module-grid"),
   levelGrid: document.getElementById("level-grid"),
@@ -378,6 +380,7 @@ function init() {
   renderLevels();
   renderReviewOptions();
   updateSnapshot();
+  renderScoreHistory();
 }
 
 function attachEvents() {
@@ -596,6 +599,7 @@ function completeLevel() {
   renderLevels();
   renderReviewOptions();
   updateSnapshot();
+  renderScoreHistory();
 }
 
 function moveToNextLevel() {
@@ -863,7 +867,8 @@ function handleCreateProfile() {
     name,
     focus,
     passwordHash: hashPassword(password),
-    progress: {}
+    progress: {},
+    scoreHistory: []
   };
   profilesStore.currentProfileId = profileId;
   saveProfilesStore();
@@ -906,6 +911,7 @@ function applyCurrentProfile() {
   const profile = getCurrentProfile();
 
   if (profile) {
+    ensureProfileShape(profile);
     elements.profileNameLabel.textContent = profile.name;
     elements.profileTrackLabel.textContent = formatFocus(profile.focus);
     elements.saveStatusLabel.textContent = profile.name;
@@ -924,6 +930,7 @@ function applyCurrentProfile() {
   renderLevels();
   renderReviewOptions();
   updateSnapshot();
+  renderScoreHistory();
 }
 
 function showProfileMessage(message, type) {
@@ -955,6 +962,7 @@ function updateSnapshot() {
 }
 
 function saveCompletedLevel(moduleId, level, score, results) {
+  const module = getSelectedModule();
   const attempt = {
     level,
     score,
@@ -968,6 +976,15 @@ function saveCompletedLevel(moduleId, level, score, results) {
       profile.progress[moduleId] = {};
     }
     profile.progress[moduleId][level] = attempt;
+    profile.scoreHistory.unshift({
+      moduleId,
+      moduleTitle: module.title,
+      level,
+      score,
+      percentage: Math.round((score / 10) * 100),
+      completedAt: attempt.completedAt
+    });
+    profile.scoreHistory = profile.scoreHistory.slice(0, 30);
     profilesStore.profiles[profile.id] = profile;
     saveProfilesStore();
     return `Saved to ${profile.name}'s profile.`;
@@ -977,6 +994,15 @@ function saveCompletedLevel(moduleId, level, score, results) {
     guestStore.progress[moduleId] = {};
   }
   guestStore.progress[moduleId][level] = attempt;
+  guestStore.scoreHistory.unshift({
+    moduleId,
+    moduleTitle: module.title,
+    level,
+    score,
+    percentage: Math.round((score / 10) * 100),
+    completedAt: attempt.completedAt
+  });
+  guestStore.scoreHistory = guestStore.scoreHistory.slice(0, 30);
   saveGuestStore();
   return "Saved in this browser for guest mode.";
 }
@@ -1003,12 +1029,24 @@ function getActiveProgress() {
   return getCurrentProfile() ? getCurrentProfile().progress : guestStore.progress;
 }
 
+function getActiveScoreHistory() {
+  return getCurrentProfile() ? getCurrentProfile().scoreHistory : guestStore.scoreHistory;
+}
+
 function getSelectedModule() {
   return modules.find((module) => module.id === state.selectedModuleId) || modules[0];
 }
 
 function getCurrentProfile() {
-  return state.currentProfileId ? profilesStore.profiles[state.currentProfileId] || null : null;
+  if (!state.currentProfileId) {
+    return null;
+  }
+
+  const profile = profilesStore.profiles[state.currentProfileId] || null;
+  if (profile) {
+    ensureProfileShape(profile);
+  }
+  return profile;
 }
 
 function loadProfilesStore() {
@@ -1030,15 +1068,54 @@ function loadGuestStore() {
   try {
     const stored = JSON.parse(localStorage.getItem(guestStoreKey));
     return stored && typeof stored === "object"
-      ? { progress: stored.progress || {} }
-      : { progress: {} };
+      ? { progress: stored.progress || {}, scoreHistory: stored.scoreHistory || [] }
+      : { progress: {}, scoreHistory: [] };
   } catch (error) {
-    return { progress: {} };
+    return { progress: {}, scoreHistory: [] };
   }
 }
 
 function saveGuestStore() {
   localStorage.setItem(guestStoreKey, JSON.stringify(guestStore));
+}
+
+function renderScoreHistory() {
+  const history = getActiveScoreHistory();
+
+  if (!history.length) {
+    elements.scoreHistoryEmpty.classList.remove("hidden");
+    elements.scoreHistoryList.innerHTML = "";
+    return;
+  }
+
+  elements.scoreHistoryEmpty.classList.add("hidden");
+  elements.scoreHistoryList.innerHTML = history
+    .slice(0, 10)
+    .map((entry) => `
+      <div class="history-item">
+        <strong>${entry.moduleTitle}</strong>
+        <span>Level ${entry.level} | Score ${entry.score}/10 (${entry.percentage}%)</span>
+        <small>${formatDateTime(entry.completedAt)}</small>
+      </div>
+    `)
+    .join("");
+}
+
+function ensureProfileShape(profile) {
+  if (!profile.progress || typeof profile.progress !== "object") {
+    profile.progress = {};
+  }
+  if (!Array.isArray(profile.scoreHistory)) {
+    profile.scoreHistory = [];
+  }
+}
+
+function formatDateTime(value) {
+  try {
+    return new Date(value).toLocaleString();
+  } catch (error) {
+    return value;
+  }
 }
 
 function makeModule(id, order, title, description, stage, facts) {
@@ -1136,3 +1213,4 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }
+
